@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,88 +11,41 @@ namespace Integration_Testing
 {
     class ITesting
     {
-        private IWebDriver driver;
-        private StringBuilder verificationErrors;
-        private string baseURL;
-        private bool acceptNextAlert = true;
-
+        IWebDriver driver;
         [SetUp]
-        public void SetupTest()
+        public void startBrowser()
         {
             driver = new ChromeDriver();
-            baseURL = "https://www.google.com/";
-            verificationErrors = new StringBuilder();
         }
-
-        [TearDown]
-        public void TeardownTest()
-        {
-            try
-            {
-                driver.Quit();
-            }
-            catch (Exception)
-            {
-                // Ignore errors if unable to close the browser
-            }
-            Assert.AreEqual("", verificationErrors.ToString());
-        }
-
         [Test]
-        public void The1Test()
+        public void test()
         {
-            driver.Navigate().GoToUrl("https://elp.duetbd.org/login/index.php");
+            driver.Url = "https://elp.duetbd.org/";
+
+            IWebElement element1 = driver.FindElement(By.XPath("//*[@id='header']/div/ul/li[2]/div/span/a"));
+            element1.Click();
+
+            IWebElement element = driver.FindElement(By.Name("username"));
+            element.SendKeys("170042074");
+            IWebElement password = driver.FindElement(By.Name("password"));
+            password.SendKeys("Abc.1234");
             driver.FindElement(By.Id("loginbtn")).Click();
-            driver.FindElement(By.CssSelector("#action-menu-toggle-1")).Click();
-            driver.FindElement(By.Id("actionmenuaction-6")).Click();
-        }
-        private bool IsElementPresent(By by)
-        {
-            try
-            {
-                driver.FindElement(by);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
-        }
+            string at = driver.Title;
 
-        private bool IsAlertPresent()
-        {
-            try
+            string et = "Dashboard";
+            if (at == et)
             {
-                driver.SwitchTo().Alert();
-                return true;
+                Console.WriteLine("Test Successful");
             }
-            catch (NoAlertPresentException)
+            else
             {
-                return false;
+                Console.WriteLine("Unsuccessful");
             }
         }
-
-        private string CloseAlertAndGetItsText()
+        [TearDown]
+        public void closeBrowser()
         {
-            try
-            {
-                IAlert alert = driver.SwitchTo().Alert();
-                string alertText = alert.Text;
-                if (acceptNextAlert)
-                {
-                    alert.Accept();
-                }
-                else
-                {
-                    alert.Dismiss();
-                }
-                return alertText;
-            }
-            finally
-            {
-                acceptNextAlert = true;
-            }
+            driver.Close();
         }
-
     }
 }
